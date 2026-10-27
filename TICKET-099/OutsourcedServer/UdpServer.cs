@@ -77,7 +77,9 @@ namespace BattleArena
                     var result = await _socket.ReceiveFromAsync(
                         new ArraySegment<byte>(buffer), SocketFlags.None, from);
 
-                    string msg = Encoding.UTF8.GetString(buffer);
+                    // 버퍼는 매번 재사용됩니다. 받은 길이만큼만 읽어야
+                    // 이전에 받은 더 긴 패킷의 꼬리가 붙지 않습니다.
+                    string msg = Encoding.UTF8.GetString(buffer, 0, result.ReceivedBytes);
 
                     HandlePacket(msg, result.RemoteEndPoint);
                 }
