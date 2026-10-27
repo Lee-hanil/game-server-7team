@@ -47,10 +47,13 @@ namespace BattleArena
             byte[] header = new byte[4];
 
             // 먼저 헤더 4바이트를 읽어 본문 길이를 알아냅니다.
-            // Receive는 블로킹 함수라서 Task.Run으로 감싸 비동기화했습니다.
+            // ※ 예전 코드는 블로킹 Receive 를 Task.Run 으로 감쌌습니다.
+            //   그러면 데이터가 올 때까지 스레드풀 스레드 하나가 계속 붙잡혀서,
+            //   접속자 수만큼 스레드가 필요해집니다 (스레드풀 최소치를 넘으면 줄을 섭니다).
+            //   진짜 비동기인 ReceiveAsync 는 기다리는 동안 스레드를 쓰지 않습니다.
             // Receive 는 "최대 4바이트" 를 읽을 뿐, 4바이트가 다 올 때까지 기다려주지 않습니다.
             // 모자라면 이어서 더 읽어야 합니다.
-            bool ok = await Task.Run(() => ReadExact(socket, header, 4));
+            bool ok = await ReadExactAsync(socket, header, 4);
 
             if (!ok) return null;             // 상대가 연결을 닫음
 
@@ -64,18 +67,19 @@ namespace BattleArena
             // 알아낸 길이만큼 본문을 읽습니다.
             // 본문도 마찬가지로 bodyLength 를 다 채울 때까지 반복해서 읽습니다.
             // (예전 코드는 한 번만 읽어서, 패킷이 쪼개져 오면 뒷부분이 0 으로 비어 있었습니다)
-            if (!await Task.Run(() => ReadExact(socket, body, bodyLength))) return null;
+            if (!await ReadExactAsync(socket, body, bodyLength)) return null;
 
             return Encoding.UTF8.GetString(body, 0, bodyLength);
         }
 
         /// <summary>size 바이트를 다 받을 때까지 반복해서 읽습니다. 연결이 끊기면 false.</summary>
-        private static bool ReadExact(Socket socket, byte[] buffer, int size)
+        private static async Task<bool> ReadExactAsync(Socket socket, byte[] buffer, int size)
         {
             int read = 0;
             while (read < size)
             {
-                int n = socket.Receive(buffer, read, size - read, SocketFlags.None);
+                int n = await socket.ReceiveAsync(
+                    new ArraySegment<byte>(buffer, read, size - read), SocketFlags.None);
                 if (n == 0) return false;
                 read += n;
             }
