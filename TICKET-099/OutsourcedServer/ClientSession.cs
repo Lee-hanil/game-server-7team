@@ -50,7 +50,16 @@ namespace BattleArena
                     string? json = await PacketHelper.ReceiveAsync(_socket);
                     if (json == null) break;
 
-                    HandlePacket(json);
+                    // 패킷 하나가 잘못됐다고 서버 전체가 죽으면 안 됩니다.
+                    // await 로 기다리므로 예외가 여기까지 올라오고, 이 패킷만 버린 뒤 계속 받습니다.
+                    try
+                    {
+                        await HandlePacketAsync(json);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[경고] ID:{PlayerId} 잘못된 패킷을 버립니다 : {ex.GetType().Name} {ex.Message}");
+                    }
                 }
             }
             catch (Exception ex)
@@ -66,12 +75,22 @@ namespace BattleArena
         // ═══════════════════════════════════════
         // 패킷 처리
         //
-        // 수신 루프를 막지 않기 위해 비동기로 처리합니다.
+        // ※ 예전에는 async void 였습니다.
+        //   async void 에서 난 예외는 호출한 쪽 try/catch 로 돌아오지 못하고
+        //   스레드풀에서 그대로 터져 프로세스 전체를 종료시킵니다.
+        //   async Task 로 바꾸고 RunAsync 에서 await 합니다.
         // ═══════════════════════════════════════
-        private async void HandlePacket(string json)
+        private async Task HandlePacketAsync(string json)
         {
             dynamic? packet = JsonConvert.DeserializeObject(json);
             if (packet == null) return;
+
+            // Type 필드가 없는 패킷은 (int) 변환에서 예외가 나므로 먼저 걸러냅니다.
+            if (packet.Type == null)
+            {
+                Console.WriteLine($"[경고] ID:{PlayerId} Type 필드가 없는 패킷을 버립니다");
+                return;
+            }
 
             int type = (int)packet.Type;
 
