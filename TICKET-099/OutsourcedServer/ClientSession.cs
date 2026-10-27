@@ -183,6 +183,17 @@ namespace BattleArena
             catch { }
 
             GameServer.Instance.RemoveSession(PlayerId);
+
+            // 퇴장 알림 (PLAYER_OUT = 21) 은 정의만 돼 있고 보내는 곳이 없었습니다.
+            // 로그인까지 마친 사람이 나갈 때만 남은 사람들에게 알립니다.
+            if (IsLoggedIn)
+            {
+                GameServer.Instance.Broadcast(new NoticePacket
+                {
+                    Type    = PacketType.PLAYER_OUT,
+                    Message = $"{Nickname}님이 퇴장했습니다."
+                });
+            }
         }
     }
 }
