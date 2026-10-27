@@ -127,6 +127,10 @@ namespace BattleArena
             foreach (var pair in _sessions)
             {
                 if (pair.Key == exceptPlayerId) continue;
+
+                // 아직 로그인(WELCOME 수신)을 마치지 않은 세션에는 보내지 않습니다.
+                // 보내면 클라이언트가 WELCOME 보다 남의 입장 알림을 먼저 받게 됩니다.
+                if (!pair.Value.IsLoggedIn) continue;
                 _ = pair.Value.SendAsync(packet);
             }
         }
