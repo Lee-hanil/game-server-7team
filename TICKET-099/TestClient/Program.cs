@@ -153,6 +153,11 @@ namespace BattleArena
                 _udp = new Socket(AddressFamily.InterNetwork,
                                   SocketType.Dgram, ProtocolType.Udp);
 
+                // 받기(ReceiveFrom)를 먼저 시작하려면 소켓이 바인드돼 있어야 합니다.
+                // 안 하면 InvalidOperationException 으로 수신 루프가 바로 죽습니다.
+                // 포트 0 = OS 가 빈 포트를 골라줍니다.
+                _udp.Bind(new IPEndPoint(IPAddress.Any, 0));
+
                 _udpServer = new IPEndPoint(IPAddress.Parse(SERVER_IP), StudentConfig.UdpPort);
 
                 _seq = 0;
