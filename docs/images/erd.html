@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#fff;width:1640px;height:930px;position:relative;
+       font-family:"Noto Sans CJK KR",sans-serif;color:#1f1f1f;overflow:hidden}
+  .title{position:absolute;left:56px;top:40px;font-size:24px;font-weight:700;letter-spacing:-.3px}
+  .meta{position:absolute;left:58px;top:78px;font-size:13px;color:#777}
+  .t{position:absolute;width:300px;border:1px solid #3a3a3a;background:#fff}
+  .t.view{border:1px dashed #3a3a3a}
+  .h{height:34px;line-height:34px;padding:0 12px;background:#f3f3f0;border-bottom:1px solid #3a3a3a;
+     font-weight:700;font-size:15px;display:flex;justify-content:space-between}
+  .h span{font-weight:400;font-size:12px;color:#777}
+  .c{height:28px;line-height:28px;padding:0 12px;display:flex;font-size:13.5px;border-top:1px solid #ededea}
+  .c:first-of-type{border-top:none}
+  .c .k{width:42px;font-size:11px;font-weight:700;color:#1f1f1f}
+  .c .k.f{color:#888;font-weight:600}
+  .c .n{flex:1}
+  .c .n.pk{font-weight:600}
+  .c .ty{color:#8a8a8a;font-size:12px;font-family:"DejaVu Sans Mono",monospace}
+  .c .q{color:#b06a00;font-size:11px;margin-left:6px}
+  .memo{position:absolute;width:300px;border:1px dashed #9a9a9a;background:#fafaf8;padding:12px 14px}
+  .memo b{font-size:14px} .memo p{font-size:12px;color:#777;margin:2px 0 8px}
+  .memo li{font-size:13px;line-height:1.75;margin-left:16px;color:#333}
+  .notes{position:absolute;left:56px;top:836px;width:1100px;font-size:12.5px;color:#555;line-height:1.75}
+  .notes code{font-family:"DejaVu Sans Mono",monospace;font-size:12px;color:#333}
+  .legend{position:absolute;left:1200px;top:836px;font-size:12.5px;color:#555;line-height:1.75}
+  svg{position:absolute;left:0;top:0;overflow:visible}
+</style></head><body>
+<div class="title">7team 미로 탈출 — ERD</div>
+<div class="meta">SQLite 기준 · 닉네임 1회성 · 사망 시 두 명 모두 재시작 · 2026-11-06</div>
+
+<svg id="lines" width="1640" height="930"></svg>
+
+<div class="t" id="players" style="left:56px;top:130px">
+  <div class="h">players<span>접속 1회 = 1행</span></div>
+  <div class="c" data-c="id"><span class="k">PK</span><span class="n pk">id</span><span class="ty">INTEGER</span></div>
+  <div class="c"><span class="k"></span><span class="n">nickname<span class="q">¹</span></span><span class="ty">TEXT</span></div>
+  <div class="c"><span class="k"></span><span class="n">ip</span><span class="ty">TEXT</span></div>
+  <div class="c"><span class="k"></span><span class="n">joined_at</span><span class="ty">DATETIME</span></div>
+  <div class="c"><span class="k"></span><span class="n">left_at</span><span class="ty">DATETIME?</span></div>
+</div>
+
+<div class="t" id="match_results" style="left:436px;top:130px">
+  <div class="h">match_results<span>판별 개인 기록</span></div>
+  <div class="c" data-c="match_id"><span class="k">PK FK</span><span class="n pk">match_id</span><span class="ty">INTEGER</span></div>
+  <div class="c" data-c="player_id"><span class="k">PK FK</span><span class="n pk">player_id</span><span class="ty">INTEGER</span></div>
+  <div class="c"><span class="k"></span><span class="n">coins_collected<span class="q">²</span></span><span class="ty">INTEGER</span></div>
+  <div class="c"><span class="k"></span><span class="n">deaths_count</span><span class="ty">INTEGER</span></div>
+  <div class="c"><span class="k"></span><span class="n">score</span><span class="ty">INTEGER</span></div>
+</div>
+
+<div class="t" id="matches" style="left:816px;top:130px">
+  <div class="h">matches<span>한 판</span></div>
+  <div class="c" data-c="id"><span class="k">PK</span><span class="n pk">id</span><span class="ty">INTEGER</span></div>
+  <div class="c" data-c="stage_id"><span class="k f">FK</span><span class="n">stage_id</span><span class="ty">INTEGER</span></div>
+  <div class="c"><span class="k"></span><span class="n">room_code</span><span class="ty">TEXT</span></div>
+  <div class="c"><span class="k"></span><span class="n">status<span class="q">³</span></span><span class="ty">TEXT</span></div>
+  <div class="c"><span class="k"></span><span class="n">attempt_count</span><span class="ty">INTEGER</span></div>
+  <div class="c"><span class="k"></span><span class="n">started_at</span><span class="ty">DATETIME</span></div>
+  <div class="c"><span class="k"></span><span class="n">ended_at</span><span class="ty">DATETIME?</span></div>
+  <div class="c"><span class="k"></span><span class="n">clear_time_ms</span><span class="ty">INTEGER?</span></div>
+  <div class="c"><span class="k"></span><span class="n">team_score</span><span class="ty">INTEGER</span></div>
+</div>
+
+<div class="t" id="stages" style="left:1196px;top:130px">
+  <div class="h">stages<span>맵</span></div>
+  <div class="c" data-c="id"><span class="k">PK</span><span class="n pk">id</span><span class="ty">INTEGER</span></div>
+  <div class="c"><span class="k"></span><span class="n">name</span><span class="ty">TEXT</span></div>
+  <div class="c"><span class="k"></span><span class="n">width</span><span class="ty">INTEGER</span></div>
+  <div class="c"><span class="k"></span><span class="n">height</span><span class="ty">INTEGER</span></div>
+  <div class="c"><span class="k"></span><span class="n">map_data<span class="q">⁴</span></span><span class="ty">TEXT</span></div>
+  <div class="c"><span class="k"></span><span class="n">spawn_points<span class="q">⁴</span></span><span class="ty">TEXT</span></div>
+  <div class="c"><span class="k"></span><span class="n">total_coins</span><span class="ty">INTEGER</span></div>
+</div>
+
+<div class="memo" style="left:56px;top:500px">
+  <b>서버 메모리</b>
+  <p>DB에 저장하지 않음</p>
+  <ul>
+    <li>접속 중 닉네임 목록 (중복 확인)</li>
+    <li>방 목록 · 입장 코드</li>
+    <li>플레이어 위치 · 이동 입력</li>
+    <li>이번 시도의 코인 · 획득 기록</li>
+  </ul>
+  <p style="margin:8px 0 0">판이 끝나면 match_results · item_pickups 로 한 번에 저장</p>
+</div>
+
+<div class="t" id="item_pickups" style="left:436px;top:500px">
+  <div class="h">item_pickups<span>코인 획득 1건</span></div>
+  <div class="c"><span class="k">PK</span><span class="n pk">id</span><span class="ty">INTEGER</span></div>
+  <div class="c" data-c="match_id"><span class="k f">FK</span><span class="n">match_id</span><span class="ty">INTEGER</span></div>
+  <div class="c" data-c="player_id"><span class="k f">FK</span><span class="n">player_id</span><span class="ty">INTEGER</span></div>
+  <div class="c" data-c="item_type_id"><span class="k f">FK</span><span class="n">item_type_id</span><span class="ty">INTEGER</span></div>
+  <div class="c"><span class="k"></span><span class="n">attempt_no<span class="q">⁵</span></span><span class="ty">INTEGER</span></div>
+  <div class="c"><span class="k"></span><span class="n">pos_x</span><span class="ty">INTEGER</span></div>
+  <div class="c"><span class="k"></span><span class="n">pos_y</span><span class="ty">INTEGER</span></div>
+  <div class="c"><span class="k"></span><span class="n">picked_at</span><span class="ty">DATETIME</span></div>
+</div>
+
+<div class="t" id="item_types" style="left:816px;top:528px">
+  <div class="h">item_types<span>아이템 종류</span></div>
+  <div class="c" data-c="id"><span class="k">PK</span><span class="n pk">id</span><span class="ty">INTEGER</span></div>
+  <div class="c"><span class="k">UQ</span><span class="n">code</span><span class="ty">TEXT</span></div>
+  <div class="c"><span class="k"></span><span class="n">name</span><span class="ty">TEXT</span></div>
+  <div class="c"><span class="k"></span><span class="n">score</span><span class="ty">INTEGER</span></div>
+</div>
+
+<div class="t view" id="v_rankings" style="left:1196px;top:500px">
+  <div class="h">v_rankings<span>VIEW · 저장 안 함</span></div>
+  <div class="c"><span class="k"></span><span class="n">stage_id</span><span class="ty">INTEGER</span></div>
+  <div class="c"><span class="k"></span><span class="n">match_id</span><span class="ty">INTEGER</span></div>
+  <div class="c"><span class="k"></span><span class="n">nicknames</span><span class="ty">TEXT</span></div>
+  <div class="c"><span class="k"></span><span class="n">team_score ↓</span><span class="ty">INTEGER</span></div>
+  <div class="c"><span class="k"></span><span class="n">clear_time_ms ↑</span><span class="ty">INTEGER</span></div>
+  <div class="c"><span class="k"></span><span class="n">attempt_count ↑</span><span class="ty">INTEGER</span></div>
+</div>
+
+<div class="notes">
+  ¹ 영구 UNIQUE 아님. 접속 중 중복만 막음: <code>UNIQUE(nickname) WHERE left_at IS NULL</code>, 서버 시작 시 비어 있는 left_at 정리<br>
+  ² 클리어한 시도에서 모은 코인만 &nbsp;·&nbsp; ³ <code>CLEAR</code> / <code>ABANDON</code> &nbsp;·&nbsp; ⁴ JSON 문자열 (벽·장애물·코인·종점 배치, 출발점 후보)<br>
+  ⁵ 재시작하면 코인이 다시 생기므로 몇 번째 시도에서 먹었는지 구분 &nbsp;·&nbsp; v_rankings = matches(status=CLEAR) + match_results + players 조회
+</div>
+<div class="legend" id="legend">
+  <svg width="300" height="60" style="position:static">
+    <g stroke="#3a3a3a" stroke-width="1.2" fill="none">
+      <line x1="0" y1="10" x2="34" y2="10"/><line x1="8" y1="4" x2="8" y2="16"/><line x1="14" y1="4" x2="14" y2="16"/>
+      <line x1="0" y1="34" x2="34" y2="34"/><path d="M20 34 L34 28 M20 34 L34 34 M20 34 L34 40"/><circle cx="14" cy="34" r="4" fill="#fff"/>
+    </g>
+    <text x="46" y="14" font-size="12.5" fill="#555">하나 (필수)</text>
+    <text x="46" y="38" font-size="12.5" fill="#555">0개 이상</text>
+  </svg>
+</div>
+
+<script>
+const svg=document.getElementById('lines'), NS='http://www.w3.org/2000/svg';
+const R=(t,c)=>{const el=c?document.querySelector(`#${t} [data-c="${c}"]`):document.getElementById(t);return el.getBoundingClientRect();};
+const add=(tag,a)=>{const e=document.createElementNS(NS,tag);for(const k in a)e.setAttribute(k,a[k]);svg.appendChild(e);return e;};
+const S='#3a3a3a';
+// end markers. dir = unit vector pointing from the line INTO the table edge
+function one(x,y,dx,dy){const px=-dy,py=dx;[8,14].forEach(d=>add('line',{x1:x-dx*d+px*6,y1:y-dy*d+py*6,x2:x-dx*d-px*6,y2:y-dy*d-py*6,stroke:S,'stroke-width':1.2}));}
+function many(x,y,dx,dy){const px=-dy,py=dx,bx=x-dx*14,by=y-dy*14;
+  [-7,0,7].forEach(o=>add('line',{x1:bx,y1:by,x2:x+px*o,y2:y+py*o,stroke:S,'stroke-width':1.2}));
+  add('circle',{cx:x-dx*20,cy:y-dy*20,r:4,fill:'#fff',stroke:S,'stroke-width':1.2});}
+function link(pts,a,b,dash){ // a = marker at start, b = marker at end
+  add('path',{d:'M'+pts.map(p=>p.join(' ')).join(' L'),fill:'none',stroke:S,'stroke-width':1.2,...(dash?{'stroke-dasharray':'5 4'}:{})});
+  const [x0,y0]=pts[0],[x1,y1]=pts[1],[xn,yn]=pts.at(-1),[xm,ym]=pts.at(-2);
+  const u=(ax,ay,bx,by)=>{const L=Math.hypot(bx-ax,by-ay);return[(bx-ax)/L,(by-ay)/L];};
+  if(a){const [dx,dy]=u(x1,y1,x0,y0);(a==='one'?one:many)(x0,y0,dx,dy);}
+  if(b){const [dx,dy]=u(xm,ym,xn,yn);(b==='one'?one:many)(xn,yn,dx,dy);}
+}
+const cy=r=>r.top+r.height/2;
+// players.id ||——o< match_results.player_id
+{const a=R('players','id'),b=R('match_results','player_id');const x0=a.right,x1=b.left,m=(x0+x1)/2;
+ link([[x0,cy(a)],[m,cy(a)],[m,cy(b)],[x1,cy(b)]],'one','many');}
+// matches.id ||——o< match_results.match_id
+{const a=R('matches','id'),b=R('match_results','match_id');const x0=a.left,x1=b.right,m=(x0+x1)/2;
+ link([[x0,cy(a)],[m,cy(a)],[m,cy(b)],[x1,cy(b)]],'one','many');}
+// stages.id ||——o< matches.stage_id
+{const a=R('stages','id'),b=R('matches','stage_id');const x0=a.left,x1=b.right,m=(x0+x1)/2;
+ link([[x0,cy(a)],[m,cy(a)],[m,cy(b)],[x1,cy(b)]],'one','many');}
+// match_results ||——o< item_pickups (복합 FK)
+{const a=R('match_results'),b=R('item_pickups');const x=a.left+a.width/2;
+ link([[x,a.bottom],[x,b.top]],'one','many');}
+// item_types.id ||——o< item_pickups.item_type_id
+{const a=R('item_types','id'),b=R('item_pickups','item_type_id');const x0=a.left,x1=b.right,m=(x0+x1)/2;
+ link([[x0,cy(a)],[m,cy(a)],[m,cy(b)],[x1,cy(b)]],'one','many');}
+// matches ··· v_rankings (조회)
+{const a=R('matches'),b=R('v_rankings');const x=a.left+a.width*0.7,y=(a.bottom+b.top)/2,xb=b.left+b.width/2;
+ link([[x,a.bottom],[x,y],[xb,y],[xb,b.top]],null,null,true);
+ const t=add('text',{x:x+8,y:y-6,'font-size':12,fill:'#777'});t.textContent='조회로 계산';}
+</script>
+</body></html>
